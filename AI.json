@@ -1,129 +1,177 @@
 {
     "metadata": {
         "name": "ww-dropdown",
-        "description": "A customizable dropdown menu component that can be triggered by click, hover, or right-click, with configurable positions, alignments, offsets, and optional animations. The dropdown content is rendered as a portal (teleported) to avoid overflow clipping issues.",
+        "description": "A dropdown / popover container. Two dropzones: `triggerLayout` holds whatever opens it, `dropdownLayout` holds the floating panel. Opens on click, hover, or right-click; positions on any of the four sides with start/center/end alignment and px/% offsets. The panel is teleported to `#app` and positioned `fixed`, so a parent's `overflow` never clips it, and it is repositioned on scroll, window resize, and trigger resize. Both dropzones must be filled — an empty `triggerLayout` leaves nothing to click.",
         "keywords": [
             "dropdown",
             "menu",
             "popover",
+            "context-menu",
             "trigger",
-            "tooltip"
+            "tooltip",
+            "teleport"
         ],
         "features": [
             "Click, hover, or right-click trigger modes",
             "Configurable position (top, right, bottom, left) and alignment (start, center, end)",
             "Customizable X and Y offsets in px or %",
-            "Optional slide animation with transform origin based on position",
-            "Nested dropdown support",
-            "Automatic closure on outside click",
-            "Responsive: hover mode falls back to click on mobile",
+            "Optional slide + scale animation with transform origin derived from position and alignment",
+            "Teleported to `#app` so parent overflow never clips the panel",
+            "Repositions on scroll of any scrollable ancestor, on window resize, and on trigger resize",
+            "Nested dropdown support — a child does not close its parents",
+            "Closes on outside click; `closeDropdown` action for workflows",
+            "Open state and configuration exposed to the formula editor via local context",
+            "Responsive: on any non-default breakpoint, click opens the dropdown whatever the trigger type",
             "Z-index control for stacking order",
-            "Disabled state support"
+            "Disabled state support",
+            "`forceDisplayEditor` pins the panel open on the editor canvas for styling"
         ],
         "advanced": true
     },
     "properties": [
         {
             "name": "triggerType",
-            "description": "Type of interaction that opens the dropdown. 'click' opens on click, 'hover' opens on mouse enter (falls back to click on mobile), 'right-click' opens on context menu.",
+            "description": "Type of interaction that opens the dropdown. 'click' toggles on click, 'hover' opens on mouse enter and closes 200ms after mouse leave, 'right-click' toggles on context menu. On any non-default breakpoint, plain click takes over for all three modes and hover is disabled.",
             "type": "string",
             "options": ["click", "hover", "right-click"],
-            "defaultValue": "click"
+            "defaultValue": "click",
+            "bindable": true
         },
         {
             "name": "position",
-            "description": "Position of the dropdown relative to the trigger element.",
+            "description": "Side of the trigger the panel is placed on. There is no collision detection: the panel does not flip or shift when it would overflow the viewport.",
             "type": "string",
             "options": ["top", "right", "bottom", "left"],
             "defaultValue": "bottom",
+            "bindable": true,
             "responsive": true
         },
         {
             "name": "alignment",
-            "description": "Alignment of the dropdown along the position axis. For top/bottom positions: start=left, center=centered, end=right. For left/right positions: start=top, center=centered, end=bottom.",
+            "description": "Alignment along the cross axis. For position top/bottom: start=left, center=centered, end=right. For position left/right: start=top, center=centered, end=bottom.",
             "type": "string",
             "options": ["start", "center", "end"],
             "defaultValue": "start",
+            "bindable": true,
             "responsive": true
         },
         {
             "name": "offsetX",
-            "description": "Horizontal offset of the dropdown from the trigger element, as a string with unit (e.g. '10px' or '50%').",
+            "description": "Horizontal gap between the trigger and the panel, as a string with unit (e.g. '10px' or '5%'). No configured default; treated as '0px' when unset.",
             "type": "string",
-            "defaultValue": "0px"
+            "bindable": true
         },
         {
             "name": "offsetY",
-            "description": "Vertical offset of the dropdown from the trigger element, as a string with unit (e.g. '8px' or '20%').",
+            "description": "Vertical gap between the trigger and the panel, as a string with unit (e.g. '8px' or '2%'). No configured default; treated as '0px' when unset.",
             "type": "string",
-            "defaultValue": "0px"
+            "bindable": true
         },
         {
             "name": "dropdownZIndex",
-            "description": "Z-index of the dropdown overlay. Range 0-100.",
+            "description": "Z-index of the teleported panel, 0-100. Falls back to `unset` when empty.",
             "type": "number",
+            "bindable": true,
             "responsive": true
         },
         {
             "name": "disabled",
-            "description": "When true, disables the dropdown so it cannot be opened by any trigger.",
+            "description": "When true, blocks every trigger mode so the dropdown cannot be opened. Does not close an already-open dropdown on its own.",
             "type": "boolean",
-            "defaultValue": false
+            "defaultValue": false,
+            "bindable": true
         },
         {
             "name": "animated",
-            "description": "When true, enables a slide/scale animation when the dropdown opens and closes.",
+            "description": "When true, the panel opens and closes with a slide + scale transition. Duration (0.2s) and easing are fixed.",
             "type": "boolean",
-            "defaultValue": false
+            "defaultValue": false,
+            "bindable": true
         },
         {
             "name": "forceDisplayEditor",
-            "description": "When true, forces the dropdown to be displayed in editor mode for design purposes.",
+            "description": "Editor-only. Pins the panel open on the canvas so `dropdownLayout` can be styled. Not bindable and has no effect in production.",
             "type": "boolean",
             "defaultValue": false
         }
     ],
     "states": [],
     "events": [],
-    "localContext": [],
+    "localContext": [
+        {
+            "path": "dropdown",
+            "type": "object",
+            "description": "Open state and resolved configuration of the dropdown, available to anything inside either dropzone as `context.local.data['dropdown']`. This is the only way to react to the dropdown opening or closing, since the component emits no trigger events.",
+            "content": {
+                "isOpen": {
+                    "type": "boolean",
+                    "description": "Whether the dropdown is currently open. Ignores editor force-display."
+                },
+                "trigger": {
+                    "type": "object",
+                    "description": "`{ type: 'click' | 'hover' | 'right-click', disabled: boolean }` — the resolved `triggerType` and `disabled` properties."
+                },
+                "position": {
+                    "type": "object",
+                    "description": "`{ placement, alignment, offsetX, offsetY }` — the resolved placement properties, with '0px' substituted for unset offsets."
+                },
+                "state": {
+                    "type": "object",
+                    "description": "`{ isDisplayed: boolean, isAnimated: boolean }`. `isDisplayed` is true when the panel is rendered, including when it is only shown because of `forceDisplayEditor` in the editor."
+                }
+            }
+        }
+    ],
     "actions": [
         {
             "label": "Close dropdown",
             "actionName": "closeDropdown",
-            "description": "Programmatically closes the dropdown."
+            "description": "Programmatically closes the dropdown. There is no matching open action."
         }
     ],
     "slots": [
         {
             "name": "triggerLayout",
-            "description": "The element(s) that serve as the trigger for the dropdown. Clicking, hovering, or right-clicking this area (depending on triggerType) will open the dropdown.",
+            "description": "The element(s) that open the dropdown. Clicking, hovering, or right-clicking this area (depending on `triggerType`) toggles the panel. Must contain at least one element, otherwise there is nothing to interact with.",
             "type": "array"
         },
         {
             "name": "dropdownLayout",
-            "description": "The content displayed inside the dropdown when it is open. Can contain any elements such as menus, lists, forms, etc.",
+            "description": "The floating panel content, mounted only while the dropdown is open. Can contain any elements — menus, lists, forms, nested dropdowns. Give it its own background and elevation; the component adds no styling of its own.",
             "type": "array"
         }
     ],
     "variables": [],
     "specifications": [
-        "The dropdown is teleported to the app root to avoid overflow clipping from parent containers.",
-        "On mobile screen sizes, hover trigger type automatically falls back to click behavior.",
-        "The dropdown auto-closes when clicking outside of both the trigger and dropdown areas.",
-        "When animated is true, the dropdown uses a slide + scale transition with transform origin based on position and alignment.",
-        "Nested dropdowns are supported: clicking inside a child dropdown won't close parent dropdowns.",
-        "forceDisplayEditor only affects editor mode preview and has no effect in production.",
-        "Does not support programmatic open — only the closeDropdown action is available.",
-        "Does not support custom transition durations or easing; animation timing is fixed."
+        "The panel is teleported to the `#app` element of the front document and positioned `fixed` from the trigger's bounding box, so a parent's `overflow: hidden` never clips it.",
+        "Position is recomputed on scroll of every scrollable ancestor of the trigger, on window resize, and on trigger resize via a ResizeObserver — but only while the dropdown is displayed.",
+        "No collision detection: the panel never flips or shifts to stay inside the viewport. Choose or bind a `position` that fits.",
+        "On any non-default breakpoint, a plain click opens the dropdown regardless of `triggerType`, and hover is disabled — this makes hover and right-click usable on touch devices.",
+        "The trigger calls preventDefault on `contextmenu` in every trigger mode, so right-clicking the trigger never shows the browser's native menu, even when `triggerType` is 'click' or 'hover'.",
+        "In hover mode, leaving the trigger or the panel closes after a 200ms delay so the pointer can cross the gap between them.",
+        "The teleported node is unmounted 250ms after closing, to let the leave transition finish.",
+        "Clicking outside both the trigger and the panel closes the dropdown. In hover mode on the default breakpoint the outside-click handler is skipped.",
+        "Nested dropdowns are supported: each instance registers its id with its ancestors, and the outside-click handler ignores clicks inside any registered trigger or panel.",
+        "In the editor, hover never opens the dropdown but click still does. Use `forceDisplayEditor` to keep the panel pinned open while styling it.",
+        "`forceDisplayEditor` only affects editor mode preview and has no effect in production.",
+        "Exposes no trigger events — watch `context.local.data['dropdown']['isOpen']` to react to open/close.",
+        "Exposes no component variable; open state lives only in local context.",
+        "Does not support programmatic open — only the `closeDropdown` action is available.",
+        "Animation timing is fixed at 0.2s ease; duration and easing are not configurable.",
+        "No keyboard or ARIA support: the trigger is a plain div with no role or aria-expanded, the panel is not focus-managed, and Escape does not close it. Add accessible semantics inside the dropzones if needed."
     ],
     "examples": [
         {
-            "description": "A simple click-triggered dropdown menu positioned below the trigger with a button as trigger and a list of items.",
+            "description": "A click-triggered menu below the trigger, left-aligned, with an 8px gap and animation. `forceDisplayEditor` is on so the panel can be styled on the canvas.",
             "example": "{\"triggerType\":\"click\",\"position\":\"bottom\",\"alignment\":\"start\",\"offsetY\":\"8px\",\"animated\":true,\"forceDisplayEditor\":true}"
         },
         {
-            "description": "A hover-triggered dropdown positioned to the right, centered alignment.",
+            "description": "A hover-triggered panel to the right of the trigger, vertically centered, with a small gap.",
             "example": "{\"triggerType\":\"hover\",\"position\":\"right\",\"alignment\":\"center\",\"offsetX\":\"4px\",\"animated\":true}"
+        },
+        {
+            "description": "A right-click context menu anchored to the bottom-left of the cursor's element, above other content.",
+            "example": "{\"triggerType\":\"right-click\",\"position\":\"bottom\",\"alignment\":\"start\",\"animated\":false,\"dropdownZIndex\":50}"
         }
     ]
 }
