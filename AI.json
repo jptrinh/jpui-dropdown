@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "name": "ww-dropdown",
+        "name": "jpui-dropdown",
         "description": "A dropdown / popover container. Two dropzones: `triggerLayout` holds whatever opens it, `dropdownLayout` holds the floating panel. Opens on click, hover, or right-click; positions on any of the four sides with start/center/end alignment and px/% offsets. The panel is teleported to `#app` and positioned `fixed`, so a parent's `overflow` never clips it, and it is repositioned on scroll, window resize, and trigger resize. Both dropzones must be filled — an empty `triggerLayout` leaves nothing to click.",
         "keywords": [
             "dropdown",

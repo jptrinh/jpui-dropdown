@@ -40,7 +40,7 @@ element.
 ## Build
 
 ```bash
-npm run build -- --name=ww-dropdown --type=wwobject
+npm run build -- --name=jpui-dropdown --type=wwobject
 ```
 
 The `--` is required. Without it npm swallows `--name` and the CLI stops with

@@ -1,5 +1,5 @@
 {
-  "name": "ww-dropdown",
+  "name": "jpui-dropdown",
   "version": "1.0.0",
   "scripts": {
     "build": "weweb build",
