@@ -121,7 +121,20 @@ export default {
       };
     };
 
+    // The click that opens the dropdown keeps propagating up to this document-level
+    // handler. Identifying "my own trigger" by uid cannot work here: WeWeb mounts the
+    // teleported dropdown as a component instance separate from the trigger, so each
+    // gets its own `wwLib.wwUtils.getUid()` and the `ids.includes(...)` checks below
+    // never match — measured on staging, trigger e9ddd0a7 opening dropdown d48e8923.
+    // The dropdown then closed itself on the very click that opened it. Comparing the
+    // event object instead is immune to how many instances get created.
+    // In the editor this was masked: `isDisplayed` also honours
+    // `forceDisplayEditor && isEditing`, so the dropdown stayed visible after
+    // `isOpened` had already flipped back to false.
+    const openingEvent = ref(null);
+
     function onWindowClick(event) {
+      if (event === openingEvent.value) return;
       if (props.content.disabled) return;
       if (
         props.content.triggerType === "hover" &&
@@ -350,6 +363,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       delayedIsOpen,
       id,
       localContext,
+      openingEvent,
     };
   },
   computed: {
@@ -470,12 +484,15 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     },
   },
   methods: {
-    handleClick() {
+    handleClick(event) {
       if (
         this.content.triggerType === "click" ||
         (this.wwFrontState.screenSize !== "default" && !this.isEditing)
       ) {
-        if (!this.content.disabled) this.isOpened = !this.isOpened;
+        if (!this.content.disabled) {
+          this.openingEvent = event;
+          this.isOpened = !this.isOpened;
+        }
       }
     },
     closeDropdown() {
@@ -498,12 +515,15 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         }, 200);
       }
     },
-    handleRightClick() {
+    handleRightClick(event) {
       if (
         this.content.triggerType === "right-click" ||
         (this.wwFrontState.screenSize !== "default" && !this.isEditing)
       ) {
-        if (!this.content.disabled) this.isOpened = !this.isOpened;
+        if (!this.content.disabled) {
+          this.openingEvent = event;
+          this.isOpened = !this.isOpened;
+        }
       }
     },
     getOppositeSide(side) {

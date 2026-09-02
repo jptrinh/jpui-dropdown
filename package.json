@@ -1,6 +1,6 @@
 {
   "name": "jpui-dropdown",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "build": "weweb build",
     "serve": "weweb serve"
