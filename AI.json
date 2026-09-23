@@ -21,7 +21,7 @@
             "Nested dropdown support — a child does not close its parents",
             "Closes on outside click or outside right-click, so opening one right-click menu closes any other open dropdown; closes on Escape; `closeDropdown` action for workflows",
             "Open state and configuration exposed to the formula editor via local context",
-            "Responsive: on any non-default breakpoint, click opens the dropdown whatever the trigger type",
+            "Responsive: on any non-default breakpoint, click opens the dropdown whatever the trigger type (right-click mode can opt out with `smallScreenClickFallback`)",
             "Z-index control for stacking order",
             "Disabled state support",
             "`forceDisplayEditor` pins the panel open on the editor canvas for styling"
@@ -35,6 +35,13 @@
             "type": "string",
             "options": ["click", "hover", "right-click"],
             "defaultValue": "click",
+            "bindable": true
+        },
+        {
+            "name": "smallScreenClickFallback",
+            "description": "Only shown when `triggerType` is 'right-click'. When true (default), a plain click also opens the dropdown on any non-default breakpoint, since touch screens have no right-click. Set to false when the trigger's own click does something else (e.g. selecting an item); the dropdown then only opens on `contextmenu`, which Android fires on long-press but iOS Safari does not.",
+            "type": "boolean",
+            "defaultValue": true,
             "bindable": true
         },
         {
@@ -160,7 +167,7 @@
         "The panel is teleported to the `#app` element of the front document and positioned `fixed` from the trigger's bounding box, so a parent's `overflow: hidden` never clips it.",
         "Position is recomputed on scroll of every scrollable ancestor of the trigger, on window resize, and on trigger resize via a ResizeObserver — but only while the dropdown is displayed.",
         "No collision detection: the panel never flips or shifts to stay inside the viewport. Choose or bind a `position` that fits.",
-        "On any non-default breakpoint, a plain click opens the dropdown regardless of `triggerType`, and hover is disabled — this makes hover and right-click usable on touch devices.",
+        "On any non-default breakpoint, a plain click opens the dropdown regardless of `triggerType`, and hover is disabled — this makes hover and right-click usable on touch devices. In right-click mode, `smallScreenClickFallback: false` disables the plain-click fallback.",
         "The trigger calls preventDefault on `contextmenu` in every trigger mode, so right-clicking the trigger never shows the browser's native menu, even when `triggerType` is 'click' or 'hover'.",
         "In hover mode, leaving the trigger or the panel closes after a 200ms delay so the pointer can cross the gap between them.",
         "The teleported node is unmounted 250ms after closing, to let the leave transition finish.",

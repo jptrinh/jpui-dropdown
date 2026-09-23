@@ -57,6 +57,7 @@ the component compiles, not that the front path works.
 | Property | Type | Default | Bindable | Responsive | Description |
 | --- | --- | --- | --- | --- | --- |
 | `triggerType` | `click` \| `hover` \| `right-click` | `click` | ✅ | — | How the dropdown opens |
+| `smallScreenClickFallback` | boolean | `true` | ✅ | — | Right-click mode only. On non-`default` breakpoints a plain click also opens the dropdown. Turn off when the trigger's click already does something else (e.g. selects a card) |
 | `position` | `top` \| `right` \| `bottom` \| `left` | `bottom` | ✅ | ✅ | Side of the trigger the panel appears on |
 | `alignment` | `start` \| `center` \| `end` | `start` | ✅ | ✅ | Alignment along the cross axis. For `top`/`bottom`: left / centered / right. For `left`/`right`: top / centered / bottom |
 | `offsetX` | length (`px` \| `%`) | `0px` | ✅ | — | Horizontal gap from the trigger |
@@ -105,7 +106,9 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
 
 - **Breakpoint fallback.** On any non-`default` screen size, a plain click opens the dropdown
   whatever `triggerType` is set to, and hover is disabled. This makes `hover` and `right-click`
-  usable on touch devices.
+  usable on touch devices. In `right-click` mode, turn off `smallScreenClickFallback` to keep
+  plain clicks for the trigger's own workflow — the menu then opens only on `contextmenu`
+  (long-press on Android; iOS Safari fires none).
 - **Native context menu.** The trigger calls `preventDefault()` on `contextmenu` in every trigger
   mode, so right-clicking the trigger never shows the browser menu — even when `triggerType` is
   `click` or `hover`.

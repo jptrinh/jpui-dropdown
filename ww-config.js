@@ -31,6 +31,22 @@ export default {
         tooltip: 'A string that defines the trigger type of the dropdown. Possible values are click, hover, and right-click.',
       }
     },
+    smallScreenClickFallback: {
+      type: "OnOff",
+      label: {
+        en: "Open on click on smaller screens",
+      },
+      defaultValue: true,
+      bindable: true,
+      hidden: (content) => content?.triggerType !== "right-click",
+      /* wwEditor:start */
+      bindingValidation: {
+        type: "boolean",
+        tooltip: "A boolean that defines whether a plain click also opens a right-click dropdown on non-desktop breakpoints",
+      },
+      propertyHelp: "Touch screens have no right-click, so by default a plain click opens the dropdown on tablet and mobile breakpoints. Turn off when the trigger's own click does something else, such as selecting an item.",
+      /* wwEditor:end */
+    },
     position: {
       label: {
         en: "Position",

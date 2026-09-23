@@ -385,6 +385,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     };
   },
   computed: {
+    // On smaller breakpoints a plain click also opens hover and right-click
+    // dropdowns, since touch screens have neither. Right-click mode can opt out.
+    opensOnSmallScreenClick() {
+      if (this.wwFrontState?.screenSize === "default" || this.isEditing)
+        return false;
+      if (this.content?.triggerType !== "right-click") return true;
+      return this.content?.smallScreenClickFallback ?? true;
+    },
     style() {
       const style = {};
       const position = this.content.position;
@@ -505,7 +513,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     handleClick(event) {
       if (
         this.content.triggerType === "click" ||
-        (this.wwFrontState.screenSize !== "default" && !this.isEditing)
+        this.opensOnSmallScreenClick
       ) {
         if (!this.content.disabled) {
           this.openingEvent = event;
