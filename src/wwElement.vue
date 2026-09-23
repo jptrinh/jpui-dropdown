@@ -111,6 +111,13 @@ export default {
       unregisterAsChild(id);
     });
 
+    // The editor runs installed components in another realm than the canvas, and an
+    // observer from that realm is not guaranteed to be notified of canvas layout.
+    function createResizeObserver(callback) {
+      const FrontResizeObserver = wwLib.getFrontWindow()?.ResizeObserver;
+      return FrontResizeObserver ? new FrontResizeObserver(callback) : null;
+    }
+
     const triggerBox = ref({});
     const synchronizeTriggerBox = () => {
       if (!triggerElementRef?.value) return;
@@ -420,8 +427,8 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         resetViewportFit();
         return;
       }
-      panelResizeObserver = new ResizeObserver(() => fitToViewport());
-      panelResizeObserver.observe(el);
+      panelResizeObserver = createResizeObserver(() => fitToViewport());
+      panelResizeObserver?.observe(el);
     });
     // Anchor moves on scroll / resize: measure after the new position rendered.
     watch(anchorBox, () => fitToViewport(), { flush: "post" });
@@ -463,12 +470,13 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       // right-click dropdown's trigger opened it and left this one open too.
       wwLib.getFrontDocument().addEventListener("contextmenu", onWindowClick);
       wwLib.getFrontDocument().addEventListener("keydown", onKeydown);
-      resizeObserver = new ResizeObserver((entries) => {
-        const entry = entries[0];
+      resizeObserver = createResizeObserver((entries) => {
+        const entry = entries?.[0];
+        if (!entry) return;
         triggerBox.value.width = entry.contentRect.width;
         triggerBox.value.height = entry.contentRect.height;
       });
-      resizeObserver.observe(triggerElementRef.value);
+      if (triggerElementRef.value) resizeObserver?.observe(triggerElementRef.value);
       setScrollableParents(triggerElementRef.value);
       scrollableParents.forEach((p) => {
         p.addEventListener("scroll", synchronizeTriggerBox, { passive: true });
