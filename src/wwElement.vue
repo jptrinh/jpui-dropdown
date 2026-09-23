@@ -191,6 +191,37 @@ export default {
 
     const isOpened = ref(false);
 
+    // aria-expanded is not allowed on a generic div, and wrapping the dropped
+    // content in role="button" would nest buttons. So it goes on the first
+    // focusable element dropped into the trigger, re-applied when that content
+    // changes. A trigger with nothing focusable gets none.
+    const FOCUSABLE_SELECTOR =
+      'button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
+    let ariaExpandedTarget = null;
+    function syncAriaExpanded() {
+      const target =
+        triggerElementRef.value?.querySelector?.(FOCUSABLE_SELECTOR) ?? null;
+      if (ariaExpandedTarget && ariaExpandedTarget !== target)
+        ariaExpandedTarget.removeAttribute?.("aria-expanded");
+      ariaExpandedTarget = target;
+      target?.setAttribute?.("aria-expanded", isOpened.value ? "true" : "false");
+    }
+    watch(isOpened, syncAriaExpanded, { flush: "post" });
+    let triggerMutationObserver = null;
+    onMounted(() => {
+      syncAriaExpanded();
+      const FrontMutationObserver = wwLib.getFrontWindow()?.MutationObserver;
+      if (!FrontMutationObserver || !triggerElementRef.value) return;
+      triggerMutationObserver = new FrontMutationObserver(syncAriaExpanded);
+      triggerMutationObserver.observe(triggerElementRef.value, {
+        childList: true,
+        subtree: true,
+      });
+    });
+    onUnmounted(() => {
+      triggerMutationObserver?.disconnect();
+    });
+
     function onKeydown(event) {
       if (event?.key !== "Escape") return;
       if (!(props.content?.closeOnEscape ?? true)) return;

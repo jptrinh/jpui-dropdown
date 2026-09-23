@@ -195,7 +195,7 @@
         "Exposes no component variable; open state lives only in local context.",
         "Does not support programmatic open — only the `closeDropdown` action is available.",
         "Animation timing is fixed at 0.2s ease; duration and easing are not configurable.",
-        "No ARIA or focus management: the trigger is a plain div with no role or aria-expanded and the panel is not focus-managed. Escape closes it unless `closeOnEscape` is off. Add accessible semantics inside the dropzones if needed."
+        "`aria-expanded` ('true' / 'false', following the open state) is set on the first focusable element inside `triggerLayout` — button, link, input, select, textarea, role=button, or a non-negative tabindex — and re-applied when the trigger content changes. The wrapper div itself carries no ARIA, since aria-expanded is invalid on a generic element; a trigger with nothing focusable gets none. The panel has no role and is not focus-managed. Escape closes it unless `closeOnEscape` is off."
     ],
     "examples": [
         {

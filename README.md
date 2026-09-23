@@ -137,9 +137,12 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
   `context.local.data['dropdown']['isOpen']` instead.
 - **Fixed animation.** Duration (0.2 s) and easing are not configurable. When the OS asks for
   reduced motion, the slide + scale is replaced by a plain fade.
-- **No ARIA or focus management.** The trigger is a plain `div` with no role or `aria-expanded`,
-  and the panel is not focus-managed; only <kbd>Esc</kbd> is handled. Add your own semantics
-  inside the slots if you need an accessible menu.
+- **Partial ARIA, no focus management.** `aria-expanded` is set on the first focusable element
+  in `triggerLayout` (a button, link, input, or anything with `tabindex`) — not on the wrapper,
+  where it would be invalid. A trigger with nothing focusable, such as a plain div card, gets no
+  ARIA. The panel is not focus-managed and has no role; only <kbd>Esc</kbd> is handled. Use a
+  button as the trigger, and add your own semantics inside the panel, if you need an accessible
+  menu.
 
 ## Project structure
 
