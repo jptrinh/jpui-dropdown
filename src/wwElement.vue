@@ -759,12 +759,6 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 </script>
 
 <style lang="scss" scoped>
-:root {
-  --slideOriginX: 0px;
-  --slideOriginY: 0px;
-  --transformOrigin: top left;
-}
-
 .dropdown {
   position: fixed;
 }
@@ -772,13 +766,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.2s ease;
-  transform-origin: var(--transformOrigin);
+  transform-origin: var(--transformOrigin, top left);
 }
 
 .slide-enter-from,
 .slide-leave-to {
   opacity: 0;
-  transform: translate(var(--slideOriginX), var(--slideOriginY)) scale(0.1);
+  transform: translate(var(--slideOriginX, 0px), var(--slideOriginY, 0px))
+    scale(0.1);
 }
 
 @media (prefers-reduced-motion: reduce) {
