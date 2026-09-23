@@ -85,7 +85,7 @@
         },
         {
             "name": "keepInViewport",
-            "description": "When true, after the panel is laid out it flips to the opposite side of the anchor (bottom↔top, right↔left) if the configured side lacks room and the opposite has more, then shifts along both axes to stay 8px inside the viewport. Re-evaluated on scroll, resize, and panel content resize. Never resizes the panel.",
+            "description": "When true, after the panel is laid out it flips to the opposite side of the anchor (bottom↔top, right↔left) if the configured side lacks room and the opposite has more, then shifts along both axes to stay 8px inside the viewport. Re-evaluated on scroll, resize, and panel content resize. Once the anchor is scrolled out of the viewport, flip and shift are dropped so the panel leaves with it rather than sticking to the edge. Never resizes the panel.",
             "type": "boolean",
             "defaultValue": true,
             "bindable": true

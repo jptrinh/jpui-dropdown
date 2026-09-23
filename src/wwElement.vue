@@ -329,6 +329,8 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     );
 
     function resetViewportFit() {
+      const shift = viewportShift.value;
+      if (flippedPlacement.value === null && !shift.x && !shift.y) return;
       flippedPlacement.value = null;
       viewportShift.value = { x: 0, y: 0 };
     }
@@ -355,6 +357,17 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
       const vw = root.clientWidth;
       const vh = root.clientHeight;
+      // The anchor scrolled out of view: let the panel leave with it instead of
+      // flipping and pinning it to the viewport edge over unrelated content.
+      if (
+        anchor.bottom < 0 ||
+        anchor.top > vh ||
+        anchor.right < 0 ||
+        anchor.left > vw
+      ) {
+        resetViewportFit();
+        return;
+      }
       const shift = viewportShift.value;
       const left = rect.left - shift.x;
       const top = rect.top - shift.y;

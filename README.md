@@ -65,7 +65,7 @@ the component compiles, not that the front path works.
 | `openAtCursor` | boolean | `false` | ✅ | — | Click and right-click modes. Anchors the panel at the pointer instead of the trigger box; `position` / `alignment` / offsets then apply around that point (`bottom` + `start` = top-left corner at the cursor). In right-click mode, right-clicking again moves the open menu to the new point |
 | `offsetX` | length (`px` \| `%`) | `0px` | ✅ | — | Horizontal gap from the trigger |
 | `offsetY` | length (`px` \| `%`) | `0px` | ✅ | — | Vertical gap from the trigger |
-| `keepInViewport` | boolean | `true` | ✅ | — | When the panel would overflow the screen, flips it to the opposite side if there is more room there, then shifts it to stay 8 px inside the edges |
+| `keepInViewport` | boolean | `true` | ✅ | — | When the panel would overflow the screen, flips it to the opposite side if there is more room there, then shifts it to stay 8 px inside the edges. Once the trigger (or cursor point) scrolls out of view, the panel scrolls away with it |
 | `dropdownZIndex` | number `0`–`100` | `unset` | ✅ | ✅ | Stacking order of the teleported panel |
 | `disabled` | boolean | `false` | ✅ | — | Blocks every trigger mode |
 | `animated` | boolean | `false` | ✅ | — | Enables the slide + scale transition |
