@@ -17,7 +17,8 @@ Based on [`weweb-assets/ww-dropdown`](https://github.com/weweb-assets/ww-dropdow
 - Optional slide + scale animation with a transform origin derived from position and alignment
 - Teleported to `#app`, so no overflow clipping; repositions on scroll, resize, and trigger resize
 - Nested dropdowns — opening or clicking a child does not close its parents
-- Closes on outside click; `closeDropdown` action for workflows
+- Closes on outside click or outside right-click — opening one right-click menu closes the
+  others; `closeDropdown` action for workflows
 - Exposes open state, trigger config, and position to the formula editor via local context
 - `z-index` control and a disabled state
 - "Force display in editor" so you can style the open panel on the canvas

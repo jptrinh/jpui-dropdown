@@ -141,12 +141,12 @@ export default {
         props.wwFrontState.screenSize === "default"
       )
         return;
-      const triggerParent = event.target.closest("[data-trigger-uid]");
+      const triggerParent = event.target?.closest?.("[data-trigger-uid]");
       if (triggerParent) {
         const triggerUid = triggerParent.getAttribute("data-trigger-uid");
         if (ids.includes(triggerUid)) return;
       }
-      const dropdownParent = event.target.closest("[data-dropdown-uid]");
+      const dropdownParent = event.target?.closest?.("[data-dropdown-uid]");
       if (dropdownParent) {
         const dropdownUid = dropdownParent.getAttribute("data-dropdown-uid");
         if (ids.includes(dropdownUid)) return;
@@ -286,6 +286,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     function startPositioningDropdown() {
       synchronizeTriggerBox();
       wwLib.getFrontDocument().addEventListener("click", onWindowClick);
+      // A right-click is not a click: without this, right-clicking another
+      // right-click dropdown's trigger opened it and left this one open too.
+      wwLib.getFrontDocument().addEventListener("contextmenu", onWindowClick);
       resizeObserver = new ResizeObserver((entries) => {
         const entry = entries[0];
         triggerBox.value.width = entry.contentRect.width;
@@ -303,6 +306,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
     function stopPositioningDropdown() {
       wwLib.getFrontDocument().removeEventListener("click", onWindowClick);
+      wwLib
+        .getFrontDocument()
+        .removeEventListener("contextmenu", onWindowClick);
       resizeObserver?.disconnect();
       scrollableParents.forEach((p) => {
         p.removeEventListener("scroll", synchronizeTriggerBox);
