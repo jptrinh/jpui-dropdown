@@ -23,7 +23,7 @@
           @mouseleave="handleHoverOut"
           @click="handleContentClick"
         >
-          <Transition :name="content.animated ? 'slide' : ''">
+          <Transition :name="content?.animated ? 'slide' : ''">
             <wwLayout v-if="delayedIsOpen" path="dropdownLayout" />
           </Transition>
         </div>
@@ -62,7 +62,7 @@ export default {
     const appDiv = wwLib.getFrontDocument().querySelector("#app");
     const isEditing = computed(() => {
       /* wwEditor:start */
-      return props.wwEditorState.isEditing;
+      return props.wwEditorState?.isEditing;
       /* wwEditor:end */
       // eslint-disable-next-line no-unreachable
       return false;
@@ -175,10 +175,10 @@ export default {
 
     function onWindowClick(event) {
       if (event === openingEvent.value) return;
-      if (props.content.disabled) return;
+      if (props.content?.disabled) return;
       if (
-        props.content.triggerType === "hover" &&
-        props.wwFrontState.screenSize === "default"
+        props.content?.triggerType === "hover" &&
+        props.wwFrontState?.screenSize === "default"
       )
         return;
       const triggerParent = event.target?.closest?.("[data-trigger-uid]");
@@ -305,7 +305,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
     const isDisplayed = computed(() => {
       return (
-        isOpened.value || (props.content.forceDisplayEditor && isEditing.value)
+        isOpened.value || (props.content?.forceDisplayEditor && isEditing.value)
       );
     });
     const delayedIsOpen = ref(isDisplayed.value);
@@ -327,7 +327,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       () => props.content?.keepInViewport ?? true
     );
     const preferredPlacement = computed(() =>
-      OPPOSITE_SIDE[props.content?.position] ? props.content.position : "bottom"
+      OPPOSITE_SIDE[props.content?.position] ? props.content?.position : "bottom"
     );
     const flippedPlacement = ref(null);
     const viewportShift = ref({ x: 0, y: 0 });
@@ -451,7 +451,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
     function setScrollableParents(element) {
       scrollableParents = [];
-      let p = element.parentNode;
+      let p = element?.parentNode;
       while (p && p !== wwLib.getFrontDocument().body) {
         const s = wwLib.getFrontWindow().getComputedStyle(p);
         if (
@@ -477,7 +477,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         triggerBox.value.height = entry.contentRect.height;
       });
       if (triggerElementRef.value) resizeObserver?.observe(triggerElementRef.value);
-      setScrollableParents(triggerElementRef.value);
+      if (triggerElementRef.value) setScrollableParents(triggerElementRef.value);
       scrollableParents.forEach((p) => {
         p.addEventListener("scroll", synchronizeTriggerBox, { passive: true });
         wwLib
@@ -533,7 +533,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     });
 
     watch(
-      () => props.content.triggerType,
+      () => props.content?.triggerType,
       (newValue, oldValue) => {
         if (newValue === oldValue) return;
         isOpened.value = false;
@@ -573,12 +573,10 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     style() {
       const style = {};
       const position = this.placement;
-      const alignment = this.content.alignment;
+      const alignment = this.content?.alignment;
 
-      const offsetX =
-        this.content.offsetX !== undefined ? this.content.offsetX : "0px";
-      const offsetY =
-        this.content.offsetY !== undefined ? this.content.offsetY : "0px";
+      const offsetX = this.content?.offsetX ?? "0px";
+      const offsetY = this.content?.offsetY ?? "0px";
 
       switch (position) {
         case "top":
@@ -603,7 +601,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
           break;
       }
 
-      if (this.content.animated) {
+      if (this.content?.animated) {
         switch (position) {
           case "top":
             style["--slideOriginY"] = offsetY;
@@ -626,14 +624,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       switch (alignment) {
         case "start":
           if (position === "top" || position === "bottom") {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] =
                 this.getOppositeSide(position) + " left";
             }
             style["left"] = `calc(${offsetX} + ${this.anchorBox.left}px)`;
             style["--slideOriginX"] = "-" + offsetX;
           } else {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] =
                 "top " + this.getOppositeSide(position);
             }
@@ -642,7 +640,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
           break;
         case "center":
           if (position === "top" || position === "bottom") {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] =
                 this.getOppositeSide(position) + " center";
             }
@@ -651,7 +649,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
               `translateX( calc(-50% + (${this.anchorBox.width}px / 2) + ${offsetX}))`;
             style["--slideOriginX"] = `0px`;
           } else {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] =
                 "center " + this.getOppositeSide(position);
             }
@@ -664,14 +662,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
           break;
         case "end":
           if (position === "top" || position === "bottom") {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] = "center";
             }
             style["right"] =
               `calc(100% - ${this.anchorBox.right}px + ${offsetX})`;
             style["--slideOriginX"] = offsetX;
           } else {
-            if (this.content.animated) {
+            if (this.content?.animated) {
               style["--transformOrigin"] =
                 "bottom " + this.getOppositeSide(position);
             }
@@ -684,7 +682,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       const shift = this.viewportShift;
       if (shift?.x || shift?.y) style["translate"] = `${shift.x}px ${shift.y}px`;
 
-      style["z-index"] = this.content.dropdownZIndex || "unset";
+      style["z-index"] = this.content?.dropdownZIndex || "unset";
 
       return style;
     },
@@ -692,10 +690,10 @@ context.local.data?.['dropdown']?.['position']?.['placement']
   methods: {
     handleClick(event) {
       if (
-        this.content.triggerType === "click" ||
+        this.content?.triggerType === "click" ||
         this.opensOnSmallScreenClick
       ) {
-        if (!this.content.disabled) {
+        if (!this.content?.disabled) {
           this.openingEvent = event;
           if (!this.isOpened) this.setCursorAnchor(event);
           this.isOpened = !this.isOpened;
@@ -714,34 +712,34 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     },
     handleHoverIn() {
       if (
-        this.content.triggerType === "hover" &&
-        this.wwFrontState.screenSize === "default" &&
+        this.content?.triggerType === "hover" &&
+        this.wwFrontState?.screenSize === "default" &&
         !this.isEditing
       ) {
         clearTimeout(this.timeoutId);
-        if (!this.content.disabled) this.isOpened = true;
+        if (!this.content?.disabled) this.isOpened = true;
       }
     },
     handleHoverOut() {
-      if (this.content.triggerType === "hover") {
+      if (this.content?.triggerType === "hover") {
         this.timeoutId = setTimeout(() => {
-          if (!this.content.disabled) this.isOpened = false;
+          if (!this.content?.disabled) this.isOpened = false;
         }, 200);
       }
     },
     handleRightClick(event) {
       if (
-        this.content.triggerType === "right-click" ||
-        (this.wwFrontState.screenSize !== "default" && !this.isEditing)
+        this.content?.triggerType === "right-click" ||
+        (this.wwFrontState?.screenSize !== "default" && !this.isEditing)
       ) {
-        if (!this.content.disabled) {
+        if (!this.content?.disabled) {
           this.openingEvent = event;
           // Like a native context menu: right-clicking again moves the menu to
           // the new pointer position instead of closing it.
           if (
             this.isOpened &&
             this.openAtCursor &&
-            this.content.triggerType === "right-click"
+            this.content?.triggerType === "right-click"
           ) {
             this.setCursorAnchor(event);
             return;
