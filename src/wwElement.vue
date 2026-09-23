@@ -232,6 +232,7 @@ Information about the dropdown trigger:
 #### position
 Current positioning configuration:
 - \`placement\`: Position relative to trigger ('top', 'right', 'bottom', 'left')
+- \`resolvedPlacement\`: Side the panel is actually on, after a keepInViewport flip
 - \`alignment\`: Alignment along position axis ('start', 'center', 'end')
 - \`offsetX\`: Horizontal offset (e.g., '10px', '5%')
 - \`offsetY\`: Vertical offset (e.g., '8px', '2%')
@@ -286,6 +287,10 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         };
         dropdownLocalData.value.position = {
           placement: props.content?.position || "bottom",
+          resolvedPlacement:
+            dropdownLocalData.value.position?.resolvedPlacement ??
+            props.content?.position ??
+            "bottom",
           alignment: props.content?.alignment || "start",
           offsetX: props.content?.offsetX || "0px",
           offsetY: props.content?.offsetY || "0px",
@@ -334,6 +339,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     const viewportShift = ref({ x: 0, y: 0 });
     const placement = computed(
       () => flippedPlacement.value ?? preferredPlacement.value
+    );
+
+    watch(
+      placement,
+      (value) => {
+        dropdownLocalData.value.position.resolvedPlacement = value;
+      },
+      { immediate: true }
     );
 
     function resetViewportFit() {

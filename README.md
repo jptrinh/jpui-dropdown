@@ -99,6 +99,7 @@ context.local.data?.['dropdown']?.['isOpen']              // boolean
 context.local.data?.['dropdown']?.['trigger']?.['type']   // 'click' | 'hover' | 'right-click'
 context.local.data?.['dropdown']?.['trigger']?.['disabled']
 context.local.data?.['dropdown']?.['position']?.['placement']
+context.local.data?.['dropdown']?.['position']?.['resolvedPlacement'] // after a keepInViewport flip
 context.local.data?.['dropdown']?.['position']?.['alignment']
 context.local.data?.['dropdown']?.['position']?.['offsetX']
 context.local.data?.['dropdown']?.['position']?.['offsetY']
@@ -130,7 +131,8 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
 
 - **Viewport fitting is flip + shift only.** With `keepInViewport` the panel flips to the
   opposite side and shifts along both axes, but never resizes: a panel taller than the viewport
-  still overflows. The flip is not reflected in `position.placement` in local context.
+  still overflows. `position.placement` in local context keeps the configured side;
+  `position.resolvedPlacement` reports the side actually used.
 - **No trigger events.** The component emits no `open` / `close` events; watch
   `context.local.data['dropdown']['isOpen']` instead.
 - **Fixed animation.** Duration (0.2 s) and easing are not configurable. When the OS asks for

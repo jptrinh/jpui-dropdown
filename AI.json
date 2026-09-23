@@ -150,7 +150,7 @@
                 },
                 "position": {
                     "type": "object",
-                    "description": "`{ placement, alignment, offsetX, offsetY }` — the resolved placement properties, with '0px' substituted for unset offsets."
+                    "description": "`{ placement, resolvedPlacement, alignment, offsetX, offsetY }` — the resolved placement properties, with '0px' substituted for unset offsets. `placement` is the configured side; `resolvedPlacement` is the side the panel is actually on after a `keepInViewport` flip (e.g. to point an arrow)."
                 },
                 "state": {
                     "type": "object",
@@ -182,7 +182,7 @@
     "specifications": [
         "The panel is teleported to the `#app` element of the front document and positioned `fixed` from the trigger's bounding box, so a parent's `overflow: hidden` never clips it.",
         "Position is recomputed on scroll of every scrollable ancestor of the trigger, on window resize, and on trigger resize via a ResizeObserver — but only while the dropdown is displayed.",
-        "With `keepInViewport` (default on), the panel flips to the opposite side when the configured one lacks room, then shifts to stay 8px inside the viewport. It never resizes, and local context `position.placement` keeps reporting the configured side.",
+        "With `keepInViewport` (default on), the panel flips to the opposite side when the configured one lacks room, then shifts to stay 8px inside the viewport. It never resizes. Local context `position.placement` keeps the configured side; `position.resolvedPlacement` reports the side actually used.",
         "On any non-default breakpoint, a plain click opens the dropdown regardless of `triggerType`, and hover is disabled — this makes hover and right-click usable on touch devices. In right-click mode, `smallScreenClickFallback: false` disables the plain-click fallback.",
         "The trigger calls preventDefault on `contextmenu` in every trigger mode, so right-clicking the trigger never shows the browser's native menu, even when `triggerType` is 'click' or 'hover'.",
         "In hover mode, leaving the trigger or the panel closes after a 200ms delay so the pointer can cross the gap between them.",
