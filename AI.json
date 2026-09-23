@@ -106,7 +106,7 @@
         },
         {
             "name": "animated",
-            "description": "When true, the panel opens and closes with a slide + scale transition. Duration (0.2s) and easing are fixed.",
+            "description": "When true, the panel opens and closes with a slide + scale transition. Duration (0.2s) and easing are fixed. Under `prefers-reduced-motion: reduce` it becomes a plain opacity fade.",
             "type": "boolean",
             "defaultValue": false,
             "bindable": true

@@ -785,4 +785,16 @@ context.local.data?.['dropdown']?.['position']?.['placement']
   opacity: 0;
   transform: translate(var(--slideOriginX), var(--slideOriginY)) scale(0.1);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: opacity 0.2s ease;
+  }
+
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: none;
+  }
+}
 </style>

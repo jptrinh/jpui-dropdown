@@ -133,7 +133,8 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
   still overflows. The flip is not reflected in `position.placement` in local context.
 - **No trigger events.** The component emits no `open` / `close` events; watch
   `context.local.data['dropdown']['isOpen']` instead.
-- **Fixed animation.** Duration (0.2 s) and easing are not configurable.
+- **Fixed animation.** Duration (0.2 s) and easing are not configurable. When the OS asks for
+  reduced motion, the slide + scale is replaced by a plain fade.
 - **No ARIA or focus management.** The trigger is a plain `div` with no role or `aria-expanded`,
   and the panel is not focus-managed; only <kbd>Esc</kbd> is handled. Add your own semantics
   inside the slots if you need an accessible menu.
