@@ -19,7 +19,7 @@
             "Teleported to `#app` so parent overflow never clips the panel",
             "Repositions on scroll of any scrollable ancestor, on window resize, and on trigger resize",
             "Nested dropdown support — a child does not close its parents",
-            "Closes on outside click or outside right-click, so opening one right-click menu closes any other open dropdown; `closeDropdown` action for workflows",
+            "Closes on outside click or outside right-click, so opening one right-click menu closes any other open dropdown; closes on Escape; `closeDropdown` action for workflows",
             "Open state and configuration exposed to the formula editor via local context",
             "Responsive: on any non-default breakpoint, click opens the dropdown whatever the trigger type",
             "Z-index control for stacking order",
@@ -86,6 +86,13 @@
             "description": "When true, the panel opens and closes with a slide + scale transition. Duration (0.2s) and easing are fixed.",
             "type": "boolean",
             "defaultValue": false,
+            "bindable": true
+        },
+        {
+            "name": "closeOnEscape",
+            "description": "When true, pressing Escape anywhere in the page closes the dropdown. Every open instance listens, so an open parent and its nested child close together.",
+            "type": "boolean",
+            "defaultValue": true,
             "bindable": true
         },
         {
@@ -158,7 +165,7 @@
         "Exposes no component variable; open state lives only in local context.",
         "Does not support programmatic open — only the `closeDropdown` action is available.",
         "Animation timing is fixed at 0.2s ease; duration and easing are not configurable.",
-        "No keyboard or ARIA support: the trigger is a plain div with no role or aria-expanded, the panel is not focus-managed, and Escape does not close it. Add accessible semantics inside the dropzones if needed."
+        "No ARIA or focus management: the trigger is a plain div with no role or aria-expanded and the panel is not focus-managed. Escape closes it unless `closeOnEscape` is off. Add accessible semantics inside the dropzones if needed."
     ],
     "examples": [
         {

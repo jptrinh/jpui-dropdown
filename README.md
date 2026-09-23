@@ -18,7 +18,7 @@ Based on [`weweb-assets/ww-dropdown`](https://github.com/weweb-assets/ww-dropdow
 - Teleported to `#app`, so no overflow clipping; repositions on scroll, resize, and trigger resize
 - Nested dropdowns — opening or clicking a child does not close its parents
 - Closes on outside click or outside right-click — opening one right-click menu closes the
-  others; `closeDropdown` action for workflows
+  others; closes on <kbd>Esc</kbd>; `closeDropdown` action for workflows
 - Exposes open state, trigger config, and position to the formula editor via local context
 - `z-index` control and a disabled state
 - "Force display in editor" so you can style the open panel on the canvas
@@ -64,6 +64,7 @@ the component compiles, not that the front path works.
 | `dropdownZIndex` | number `0`–`100` | `unset` | ✅ | ✅ | Stacking order of the teleported panel |
 | `disabled` | boolean | `false` | ✅ | — | Blocks every trigger mode |
 | `animated` | boolean | `false` | ✅ | — | Enables the slide + scale transition |
+| `closeOnEscape` | boolean | `true` | ✅ | — | Pressing <kbd>Esc</kbd> closes the dropdown. Every open dropdown listens, so nested ones all close together |
 | `forceDisplayEditor` | boolean | `false` | — | — | Keeps the panel open on the editor canvas so you can style it. No effect in production |
 
 `offsetX` / `offsetY` have no configured default; when unset they are treated as `0px`.
@@ -124,8 +125,8 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
 - **No trigger events.** The component emits no `open` / `close` events; watch
   `context.local.data['dropdown']['isOpen']` instead.
 - **Fixed animation.** Duration (0.2 s) and easing are not configurable.
-- **No keyboard or ARIA support.** The trigger is a plain `div` with no role or `aria-expanded`,
-  the panel is not focus-managed, and <kbd>Esc</kbd> does not close it. Add your own semantics
+- **No ARIA or focus management.** The trigger is a plain `div` with no role or `aria-expanded`,
+  and the panel is not focus-managed; only <kbd>Esc</kbd> is handled. Add your own semantics
   inside the slots if you need an accessible menu.
 
 ## Project structure

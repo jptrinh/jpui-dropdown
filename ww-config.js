@@ -200,6 +200,20 @@ export default {
       },
       /* wwEditor:end */
     },
+    closeOnEscape: {
+      type: "OnOff",
+      label: {
+        en: "Close on Escape",
+      },
+      defaultValue: true,
+      bindable: true,
+      /* wwEditor:start */
+      bindingValidation: {
+        type: "boolean",
+        tooltip: "A boolean that defines whether pressing Escape closes the dropdown",
+      },
+      /* wwEditor:end */
+    },
     forceDisplayEditor: {
       type: "OnOff",
       label: {

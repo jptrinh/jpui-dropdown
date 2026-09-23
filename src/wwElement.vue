@@ -156,6 +156,12 @@ export default {
 
     const isOpened = ref(false);
 
+    function onKeydown(event) {
+      if (event?.key !== "Escape") return;
+      if (!(props.content?.closeOnEscape ?? true)) return;
+      isOpened.value = false;
+    }
+
     // Local variable data for dropdown state - use ref to maintain reactivity
     const dropdownLocalData = ref({
       isOpen: isOpened.value,
@@ -289,6 +295,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       // A right-click is not a click: without this, right-clicking another
       // right-click dropdown's trigger opened it and left this one open too.
       wwLib.getFrontDocument().addEventListener("contextmenu", onWindowClick);
+      wwLib.getFrontDocument().addEventListener("keydown", onKeydown);
       resizeObserver = new ResizeObserver((entries) => {
         const entry = entries[0];
         triggerBox.value.width = entry.contentRect.width;
@@ -309,6 +316,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       wwLib
         .getFrontDocument()
         .removeEventListener("contextmenu", onWindowClick);
+      wwLib.getFrontDocument().removeEventListener("keydown", onKeydown);
       resizeObserver?.disconnect();
       scrollableParents.forEach((p) => {
         p.removeEventListener("scroll", synchronizeTriggerBox);
