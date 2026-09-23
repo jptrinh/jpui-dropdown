@@ -18,6 +18,7 @@
             "Optional positioning at the cursor (`openAtCursor`) for native-feeling context menus",
             "Optional slide + scale animation with transform origin derived from position and alignment",
             "Teleported to `#app` so parent overflow never clips the panel",
+            "Flips and shifts to stay inside the viewport (`keepInViewport`)",
             "Repositions on scroll of any scrollable ancestor, on window resize, and on trigger resize",
             "Nested dropdown support — a child does not close its parents",
             "Closes on outside click or outside right-click, so opening one right-click menu closes any other open dropdown; closes on Escape; `closeDropdown` action for workflows",
@@ -47,7 +48,7 @@
         },
         {
             "name": "position",
-            "description": "Side of the trigger the panel is placed on. There is no collision detection: the panel does not flip or shift when it would overflow the viewport.",
+            "description": "Side of the trigger (or of the cursor with `openAtCursor`) the panel is placed on. With `keepInViewport` this is the preferred side: the panel flips to the opposite side when it lacks room.",
             "type": "string",
             "options": ["top", "right", "bottom", "left"],
             "defaultValue": "bottom",
@@ -80,6 +81,13 @@
             "name": "offsetY",
             "description": "Vertical gap between the trigger and the panel, as a string with unit (e.g. '8px' or '2%'). No configured default; treated as '0px' when unset.",
             "type": "string",
+            "bindable": true
+        },
+        {
+            "name": "keepInViewport",
+            "description": "When true, after the panel is laid out it flips to the opposite side of the anchor (bottom↔top, right↔left) if the configured side lacks room and the opposite has more, then shifts along both axes to stay 8px inside the viewport. Re-evaluated on scroll, resize, and panel content resize. Never resizes the panel.",
+            "type": "boolean",
+            "defaultValue": true,
             "bindable": true
         },
         {
@@ -174,7 +182,7 @@
     "specifications": [
         "The panel is teleported to the `#app` element of the front document and positioned `fixed` from the trigger's bounding box, so a parent's `overflow: hidden` never clips it.",
         "Position is recomputed on scroll of every scrollable ancestor of the trigger, on window resize, and on trigger resize via a ResizeObserver — but only while the dropdown is displayed.",
-        "No collision detection: the panel never flips or shifts to stay inside the viewport. Choose or bind a `position` that fits.",
+        "With `keepInViewport` (default on), the panel flips to the opposite side when the configured one lacks room, then shifts to stay 8px inside the viewport. It never resizes, and local context `position.placement` keeps reporting the configured side.",
         "On any non-default breakpoint, a plain click opens the dropdown regardless of `triggerType`, and hover is disabled — this makes hover and right-click usable on touch devices. In right-click mode, `smallScreenClickFallback: false` disables the plain-click fallback.",
         "The trigger calls preventDefault on `contextmenu` in every trigger mode, so right-clicking the trigger never shows the browser's native menu, even when `triggerType` is 'click' or 'hover'.",
         "In hover mode, leaving the trigger or the panel closes after a 200ms delay so the pointer can cross the gap between them.",

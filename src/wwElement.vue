@@ -305,6 +305,127 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     const delayedIsClosed = ref(!isDisplayed.value);
     const timeoutId = ref(null);
 
+    // keepInViewport: once the panel is laid out, measure it, flip it to the
+    // opposite side when the configured one lacks room, then shift it along both
+    // axes to stay inside the viewport. Every pass recomputes both from the
+    // configured position, so repeated passes converge instead of drifting.
+    const VIEWPORT_MARGIN = 8;
+    const OPPOSITE_SIDE = {
+      top: "bottom",
+      bottom: "top",
+      left: "right",
+      right: "left",
+    };
+    const keepInViewport = computed(
+      () => props.content?.keepInViewport ?? true
+    );
+    const preferredPlacement = computed(() =>
+      OPPOSITE_SIDE[props.content?.position] ? props.content.position : "bottom"
+    );
+    const flippedPlacement = ref(null);
+    const viewportShift = ref({ x: 0, y: 0 });
+    const placement = computed(
+      () => flippedPlacement.value ?? preferredPlacement.value
+    );
+
+    function resetViewportFit() {
+      flippedPlacement.value = null;
+      viewportShift.value = { x: 0, y: 0 };
+    }
+
+    function clampDelta(start, end, max) {
+      let delta = 0;
+      if (end > max - VIEWPORT_MARGIN) delta = max - VIEWPORT_MARGIN - end;
+      if (start + delta < VIEWPORT_MARGIN) delta = VIEWPORT_MARGIN - start;
+      return Math.round(delta);
+    }
+
+    function fitToViewport(isRetry = false) {
+      if (!keepInViewport.value) {
+        resetViewportFit();
+        return;
+      }
+      const el = dropdownElementRef.value;
+      const anchor = anchorBox.value;
+      const root = wwLib.getFrontDocument()?.documentElement;
+      if (!el || !root || !isDisplayed.value) return;
+      if (typeof anchor?.top !== "number") return;
+      const rect = el.getBoundingClientRect();
+      if (!rect.width && !rect.height) return;
+
+      const vw = root.clientWidth;
+      const vh = root.clientHeight;
+      const shift = viewportShift.value;
+      const left = rect.left - shift.x;
+      const top = rect.top - shift.y;
+      const right = left + rect.width;
+      const bottom = top + rect.height;
+
+      if (!isRetry) {
+        const side = placement.value;
+        const gap = {
+          bottom: top - anchor.bottom,
+          top: anchor.top - bottom,
+          right: left - anchor.right,
+          left: anchor.left - right,
+        }[side];
+        const size =
+          side === "top" || side === "bottom" ? rect.height : rect.width;
+        const needed = size + Math.max(gap, 0) + VIEWPORT_MARGIN;
+        const room = {
+          bottom: vh - anchor.bottom,
+          top: anchor.top,
+          right: vw - anchor.right,
+          left: anchor.left,
+        };
+        const preferred = preferredPlacement.value;
+        const opposite = OPPOSITE_SIDE[preferred];
+        const next =
+          needed <= room[preferred] || room[preferred] >= room[opposite]
+            ? preferred
+            : opposite;
+        if (next !== side) {
+          flippedPlacement.value = next === preferred ? null : next;
+          viewportShift.value = { x: 0, y: 0 };
+          // Re-measure once the flipped position is rendered, before paint.
+          nextTick(() => fitToViewport(true));
+          return;
+        }
+      }
+
+      const x = clampDelta(left, right, vw);
+      const y = clampDelta(top, bottom, vh);
+      if (x !== shift.x || y !== shift.y) viewportShift.value = { x, y };
+    }
+
+    // Fires on first layout and whenever the panel content changes size.
+    let panelResizeObserver = null;
+    watch(dropdownElementRef, (el) => {
+      panelResizeObserver?.disconnect();
+      panelResizeObserver = null;
+      if (!el) {
+        resetViewportFit();
+        return;
+      }
+      panelResizeObserver = new ResizeObserver(() => fitToViewport());
+      panelResizeObserver.observe(el);
+    });
+    // Anchor moves on scroll / resize: measure after the new position rendered.
+    watch(anchorBox, () => fitToViewport(), { flush: "post" });
+    watch(
+      () => [
+        props.content?.keepInViewport,
+        props.content?.position,
+        props.content?.alignment,
+        props.content?.offsetX,
+        props.content?.offsetY,
+      ],
+      () => {
+        resetViewportFit();
+        nextTick(() => fitToViewport());
+      }
+    );
+
     let resizeObserver = null;
     let scrollableParents = [];
 
@@ -386,6 +507,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
     onUnmounted(() => {
       stopPositioningDropdown();
+      panelResizeObserver?.disconnect();
       clearTimeout(timeoutId.value);
     });
 
@@ -403,6 +525,8 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       synchronizeTriggerBox,
       triggerBox,
       anchorBox,
+      placement,
+      viewportShift,
       openAtCursor,
       setCursorAnchor,
       isOpened,
@@ -427,7 +551,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     },
     style() {
       const style = {};
-      const position = this.content.position;
+      const position = this.placement;
       const alignment = this.content.alignment;
 
       const offsetX =
@@ -535,6 +659,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
           }
           break;
       }
+
+      const shift = this.viewportShift;
+      if (shift?.x || shift?.y) style["translate"] = `${shift.x}px ${shift.y}px`;
 
       style["z-index"] = this.content.dropdownZIndex || "unset";
 

@@ -174,6 +174,21 @@ export default {
         tooltip: 'A string that defines size of offset in px or %',
       }
     },
+    keepInViewport: {
+      type: "OnOff",
+      label: {
+        en: "Keep in viewport",
+      },
+      defaultValue: true,
+      bindable: true,
+      /* wwEditor:start */
+      bindingValidation: {
+        type: "boolean",
+        tooltip: "A boolean that defines whether the dropdown flips and shifts to stay inside the viewport",
+      },
+      propertyHelp: "When the panel would overflow the screen, it flips to the opposite side of the trigger (e.g. bottom to top) if there is more room there, then shifts to stay 8px inside the edges.",
+      /* wwEditor:end */
+    },
     triggerLayout: {
       hidden: true,
       defaultValue: [],

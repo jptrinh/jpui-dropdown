@@ -17,6 +17,7 @@ Based on [`weweb-assets/ww-dropdown`](https://github.com/weweb-assets/ww-dropdow
 - Optionally opens at the cursor, like a native context menu
 - Optional slide + scale animation with a transform origin derived from position and alignment
 - Teleported to `#app`, so no overflow clipping; repositions on scroll, resize, and trigger resize
+- Flips and shifts to stay inside the viewport (`keepInViewport`)
 - Nested dropdowns — opening or clicking a child does not close its parents
 - Closes on outside click or outside right-click — opening one right-click menu closes the
   others; closes on <kbd>Esc</kbd>; `closeDropdown` action for workflows
@@ -64,6 +65,7 @@ the component compiles, not that the front path works.
 | `openAtCursor` | boolean | `false` | ✅ | — | Click and right-click modes. Anchors the panel at the pointer instead of the trigger box; `position` / `alignment` / offsets then apply around that point (`bottom` + `start` = top-left corner at the cursor). In right-click mode, right-clicking again moves the open menu to the new point |
 | `offsetX` | length (`px` \| `%`) | `0px` | ✅ | — | Horizontal gap from the trigger |
 | `offsetY` | length (`px` \| `%`) | `0px` | ✅ | — | Vertical gap from the trigger |
+| `keepInViewport` | boolean | `true` | ✅ | — | When the panel would overflow the screen, flips it to the opposite side if there is more room there, then shifts it to stay 8 px inside the edges |
 | `dropdownZIndex` | number `0`–`100` | `unset` | ✅ | ✅ | Stacking order of the teleported panel |
 | `disabled` | boolean | `false` | ✅ | — | Blocks every trigger mode |
 | `animated` | boolean | `false` | ✅ | — | Enables the slide + scale transition |
@@ -126,8 +128,9 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
 
 ## Limitations
 
-- **No collision detection.** The panel does not flip or shift when it would overflow the
-  viewport — pick a `position` that fits, or bind it.
+- **Viewport fitting is flip + shift only.** With `keepInViewport` the panel flips to the
+  opposite side and shifts along both axes, but never resizes: a panel taller than the viewport
+  still overflows. The flip is not reflected in `position.placement` in local context.
 - **No trigger events.** The component emits no `open` / `close` events; watch
   `context.local.data['dropdown']['isOpen']` instead.
 - **Fixed animation.** Duration (0.2 s) and easing are not configurable.
