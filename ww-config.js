@@ -118,6 +118,22 @@ export default {
         tooltip: 'A string that defines the alignment of the dropdown. Possible values are start, center, and end.',
       }
     },
+    openAtCursor: {
+      type: "OnOff",
+      label: {
+        en: "Open at cursor",
+      },
+      defaultValue: false,
+      bindable: true,
+      hidden: (content) => content?.triggerType === "hover",
+      /* wwEditor:start */
+      bindingValidation: {
+        type: "boolean",
+        tooltip: "A boolean that defines whether the dropdown is positioned at the pointer instead of relative to the trigger",
+      },
+      propertyHelp: "Position and alignment then apply around the pointer: Bottom + Start puts the panel's top-left corner at the cursor, like a native context menu.",
+      /* wwEditor:end */
+    },
     offsetX: {
       type: "Length",
       label: {

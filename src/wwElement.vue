@@ -125,6 +125,35 @@ export default {
       };
     };
 
+    // With openAtCursor the panel anchors to a zero-size box at the pointer instead
+    // of the trigger's box. The pointer is stored relative to the trigger so the
+    // panel follows the trigger on scroll like it does without the option.
+    const cursorOffset = ref(null);
+    const openAtCursor = computed(
+      () =>
+        !!props.content?.openAtCursor && props.content?.triggerType !== "hover"
+    );
+    function setCursorAnchor(event) {
+      synchronizeTriggerBox();
+      const box = triggerBox.value;
+      // A click from the keyboard (detail 0) has no meaningful pointer position.
+      const hasPointer =
+        typeof event?.clientX === "number" &&
+        !(event.type === "click" && event.detail === 0);
+      cursorOffset.value =
+        hasPointer && typeof box?.left === "number"
+          ? { x: event.clientX - box.left, y: event.clientY - box.top }
+          : null;
+    }
+    const anchorBox = computed(() => {
+      const box = triggerBox.value ?? {};
+      const offset = cursorOffset.value;
+      if (!openAtCursor.value || !offset) return box;
+      const x = (box.left ?? 0) + offset.x;
+      const y = (box.top ?? 0) + offset.y;
+      return { left: x, right: x, top: y, bottom: y, width: 0, height: 0 };
+    });
+
     // The click that opens the dropdown keeps propagating up to this document-level
     // handler. Identifying "my own trigger" by uid cannot work here: WeWeb mounts the
     // teleported dropdown as a component instance separate from the trigger, so each
@@ -373,6 +402,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       appDiv,
       synchronizeTriggerBox,
       triggerBox,
+      anchorBox,
+      openAtCursor,
+      setCursorAnchor,
       isOpened,
       timeoutId,
       isEditing,
@@ -407,22 +439,22 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         case "top":
           style[
             "bottom"
-          ] = `calc(100% - ${this.triggerBox.bottom}px + ${this.triggerBox.height}px + ${offsetY})`;
+          ] = `calc(100% - ${this.anchorBox.bottom}px + ${this.anchorBox.height}px + ${offsetY})`;
           break;
         case "bottom":
           style[
             "top"
-          ] = `calc(${this.triggerBox.top}px + ${this.triggerBox.height}px + ${offsetY})`;
+          ] = `calc(${this.anchorBox.top}px + ${this.anchorBox.height}px + ${offsetY})`;
           break;
         case "left":
           style[
             "right"
-          ] = `calc(100% - ${this.triggerBox.right}px + ${this.triggerBox.width}px + ${offsetX})`;
+          ] = `calc(100% - ${this.anchorBox.right}px + ${this.anchorBox.width}px + ${offsetX})`;
           break;
         case "right":
           style[
             "left"
-          ] = `calc(${this.triggerBox.left}px + ${this.triggerBox.width}px + ${offsetX})`;
+          ] = `calc(${this.anchorBox.left}px + ${this.anchorBox.width}px + ${offsetX})`;
           break;
       }
 
@@ -453,14 +485,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
               style["--transformOrigin"] =
                 this.getOppositeSide(position) + " left";
             }
-            style["left"] = `calc(${offsetX} + ${this.triggerBox.left}px)`;
+            style["left"] = `calc(${offsetX} + ${this.anchorBox.left}px)`;
             style["--slideOriginX"] = "-" + offsetX;
           } else {
             if (this.content.animated) {
               style["--transformOrigin"] =
                 "top " + this.getOppositeSide(position);
             }
-            style["top"] = `calc(${this.triggerBox.top}px + ${offsetY})`;
+            style["top"] = `calc(${this.anchorBox.top}px + ${offsetY})`;
           }
           break;
         case "center":
@@ -469,20 +501,20 @@ context.local.data?.['dropdown']?.['position']?.['placement']
               style["--transformOrigin"] =
                 this.getOppositeSide(position) + " center";
             }
-            style["left"] = `calc(${offsetX} + ${this.triggerBox.left}px)`;
+            style["left"] = `calc(${offsetX} + ${this.anchorBox.left}px)`;
             style["transform"] =
-              `translateX( calc(-50% + (${this.triggerBox.width}px / 2) + ${offsetX}))`;
+              `translateX( calc(-50% + (${this.anchorBox.width}px / 2) + ${offsetX}))`;
             style["--slideOriginX"] = `0px`;
           } else {
             if (this.content.animated) {
               style["--transformOrigin"] =
                 "center " + this.getOppositeSide(position);
             }
-            style["top"] = `calc(${this.triggerBox.top}px + ${offsetY})`;
+            style["top"] = `calc(${this.anchorBox.top}px + ${offsetY})`;
             style["transform"] =
-              `translateY(calc(-50% + (${this.triggerBox.height}px / 2) + ${offsetY}))`;
+              `translateY(calc(-50% + (${this.anchorBox.height}px / 2) + ${offsetY}))`;
             style["--slideOriginY"] =
-              `calc(-0.5 * ((${this.triggerBox.width}px / 2) + ${offsetX}))`;
+              `calc(-0.5 * ((${this.anchorBox.width}px / 2) + ${offsetX}))`;
           }
           break;
         case "end":
@@ -491,7 +523,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
               style["--transformOrigin"] = "center";
             }
             style["right"] =
-              `calc(100% - ${this.triggerBox.right}px + ${offsetX})`;
+              `calc(100% - ${this.anchorBox.right}px + ${offsetX})`;
             style["--slideOriginX"] = offsetX;
           } else {
             if (this.content.animated) {
@@ -499,7 +531,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
                 "bottom " + this.getOppositeSide(position);
             }
             style["bottom"] =
-              `calc(100% - ${this.triggerBox.bottom}px + ${offsetY})`;
+              `calc(100% - ${this.anchorBox.bottom}px + ${offsetY})`;
           }
           break;
       }
@@ -517,6 +549,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       ) {
         if (!this.content.disabled) {
           this.openingEvent = event;
+          if (!this.isOpened) this.setCursorAnchor(event);
           this.isOpened = !this.isOpened;
         }
       }
@@ -555,6 +588,17 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       ) {
         if (!this.content.disabled) {
           this.openingEvent = event;
+          // Like a native context menu: right-clicking again moves the menu to
+          // the new pointer position instead of closing it.
+          if (
+            this.isOpened &&
+            this.openAtCursor &&
+            this.content.triggerType === "right-click"
+          ) {
+            this.setCursorAnchor(event);
+            return;
+          }
+          if (!this.isOpened) this.setCursorAnchor(event);
           this.isOpened = !this.isOpened;
         }
       }

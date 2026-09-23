@@ -15,6 +15,7 @@
             "Click, hover, or right-click trigger modes",
             "Configurable position (top, right, bottom, left) and alignment (start, center, end)",
             "Customizable X and Y offsets in px or %",
+            "Optional positioning at the cursor (`openAtCursor`) for native-feeling context menus",
             "Optional slide + scale animation with transform origin derived from position and alignment",
             "Teleported to `#app` so parent overflow never clips the panel",
             "Repositions on scroll of any scrollable ancestor, on window resize, and on trigger resize",
@@ -61,6 +62,13 @@
             "defaultValue": "start",
             "bindable": true,
             "responsive": true
+        },
+        {
+            "name": "openAtCursor",
+            "description": "Hidden for hover. When true, the panel is anchored to the pointer position of the opening click / right-click instead of the trigger's bounding box; `position`, `alignment` and offsets apply around that point, so bottom + start puts the panel's top-left corner at the cursor like a native context menu. The point is stored relative to the trigger, so the panel still follows the trigger on scroll. In right-click mode, right-clicking the trigger again while open moves the panel to the new point instead of closing it. Keyboard-initiated clicks fall back to the trigger box.",
+            "type": "boolean",
+            "defaultValue": false,
+            "bindable": true
         },
         {
             "name": "offsetX",
@@ -191,8 +199,8 @@
             "example": "{\"triggerType\":\"hover\",\"position\":\"right\",\"alignment\":\"center\",\"offsetX\":\"4px\",\"animated\":true}"
         },
         {
-            "description": "A right-click context menu anchored to the bottom-left of the cursor's element, above other content.",
-            "example": "{\"triggerType\":\"right-click\",\"position\":\"bottom\",\"alignment\":\"start\",\"animated\":false,\"dropdownZIndex\":50}"
+            "description": "A right-click context menu opening at the cursor, closing when an item is clicked, above other content.",
+            "example": "{\"triggerType\":\"right-click\",\"openAtCursor\":true,\"closeOnContentClick\":true,\"position\":\"bottom\",\"alignment\":\"start\",\"animated\":false,\"dropdownZIndex\":50}"
         }
     ]
 }

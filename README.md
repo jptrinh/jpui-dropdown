@@ -14,6 +14,7 @@ Based on [`weweb-assets/ww-dropdown`](https://github.com/weweb-assets/ww-dropdow
 - Three trigger modes: **click**, **hover**, **right-click**
 - Position on any of the four sides, with `start` / `center` / `end` alignment
 - X / Y offsets in `px` or `%`
+- Optionally opens at the cursor, like a native context menu
 - Optional slide + scale animation with a transform origin derived from position and alignment
 - Teleported to `#app`, so no overflow clipping; repositions on scroll, resize, and trigger resize
 - Nested dropdowns — opening or clicking a child does not close its parents
@@ -60,6 +61,7 @@ the component compiles, not that the front path works.
 | `smallScreenClickFallback` | boolean | `true` | ✅ | — | Right-click mode only. On non-`default` breakpoints a plain click also opens the dropdown. Turn off when the trigger's click already does something else (e.g. selects a card) |
 | `position` | `top` \| `right` \| `bottom` \| `left` | `bottom` | ✅ | ✅ | Side of the trigger the panel appears on |
 | `alignment` | `start` \| `center` \| `end` | `start` | ✅ | ✅ | Alignment along the cross axis. For `top`/`bottom`: left / centered / right. For `left`/`right`: top / centered / bottom |
+| `openAtCursor` | boolean | `false` | ✅ | — | Click and right-click modes. Anchors the panel at the pointer instead of the trigger box; `position` / `alignment` / offsets then apply around that point (`bottom` + `start` = top-left corner at the cursor). In right-click mode, right-clicking again moves the open menu to the new point |
 | `offsetX` | length (`px` \| `%`) | `0px` | ✅ | — | Horizontal gap from the trigger |
 | `offsetY` | length (`px` \| `%`) | `0px` | ✅ | — | Vertical gap from the trigger |
 | `dropdownZIndex` | number `0`–`100` | `unset` | ✅ | ✅ | Stacking order of the teleported panel |
