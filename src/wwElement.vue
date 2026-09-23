@@ -53,11 +53,6 @@ export default {
     wwEditorState: { type: Object, required: true },
     /* wwEditor:end */
   },
-  data() {
-    return {
-      dropdownSize: 0,
-    };
-  },
   setup(props) {
     const appDiv = wwLib.getFrontDocument().querySelector("#app");
     const isEditing = computed(() => {
