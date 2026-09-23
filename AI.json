@@ -96,6 +96,13 @@
             "bindable": true
         },
         {
+            "name": "closeOnContentClick",
+            "description": "When true, any click inside the panel closes the dropdown, after the clicked element's own click workflow has started — menu items need no close action. Clicks on a nested dropdown's trigger inside the panel are ignored so the child can open. Disabled while editing on the canvas so elements can be selected.",
+            "type": "boolean",
+            "defaultValue": false,
+            "bindable": true
+        },
+        {
             "name": "forceDisplayEditor",
             "description": "Editor-only. Pins the panel open on the canvas so `dropdownLayout` can be styled. Not bindable and has no effect in production.",
             "type": "boolean",

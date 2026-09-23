@@ -214,6 +214,20 @@ export default {
       },
       /* wwEditor:end */
     },
+    closeOnContentClick: {
+      type: "OnOff",
+      label: {
+        en: "Close on content click",
+      },
+      defaultValue: false,
+      bindable: true,
+      /* wwEditor:start */
+      bindingValidation: {
+        type: "boolean",
+        tooltip: "A boolean that defines whether a click inside the dropdown closes it",
+      },
+      /* wwEditor:end */
+    },
     forceDisplayEditor: {
       type: "OnOff",
       label: {

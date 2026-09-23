@@ -65,6 +65,7 @@ the component compiles, not that the front path works.
 | `disabled` | boolean | `false` | ✅ | — | Blocks every trigger mode |
 | `animated` | boolean | `false` | ✅ | — | Enables the slide + scale transition |
 | `closeOnEscape` | boolean | `true` | ✅ | — | Pressing <kbd>Esc</kbd> closes the dropdown. Every open dropdown listens, so nested ones all close together |
+| `closeOnContentClick` | boolean | `false` | ✅ | — | Any click inside the panel closes it, after the clicked element's own workflow has started — menu items no longer need a close action. Clicks on a nested dropdown's trigger are ignored. No effect while editing on the canvas |
 | `forceDisplayEditor` | boolean | `false` | — | — | Keeps the panel open on the editor canvas so you can style it. No effect in production |
 
 `offsetX` / `offsetY` have no configured default; when unset they are treated as `0px`.

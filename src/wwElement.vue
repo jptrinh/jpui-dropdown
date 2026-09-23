@@ -18,7 +18,11 @@
         ref="dropdownElement"
         :data-dropdown-uid="id"
       >
-        <div @mouseenter="handleHoverIn" @mouseleave="handleHoverOut">
+        <div
+          @mouseenter="handleHoverIn"
+          @mouseleave="handleHoverOut"
+          @click="handleContentClick"
+        >
           <Transition :name="content.animated ? 'slide' : ''">
             <wwLayout v-if="delayedIsOpen" path="dropdownLayout" />
           </Transition>
@@ -510,6 +514,13 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       }
     },
     closeDropdown() {
+      this.isOpened = false;
+    },
+    handleContentClick(event) {
+      if (!this.content?.closeOnContentClick || this.isEditing) return;
+      // A nested dropdown's trigger opens that child; closing here would unmount it.
+      const nestedTrigger = event?.target?.closest?.("[data-trigger-uid]");
+      if (nestedTrigger && event.currentTarget?.contains?.(nestedTrigger)) return;
       this.isOpened = false;
     },
     handleHoverIn() {
