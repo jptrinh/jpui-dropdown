@@ -26,10 +26,12 @@ export default {
       bindable: true,
       classes: true,
       states: true,
+      /* wwEditor:start */
       bindingValidation: {
         type: 'string',
         tooltip: 'A string that defines the trigger type of the dropdown. Possible values are click, hover, and right-click.',
       }
+      /* wwEditor:end */
     },
     smallScreenClickFallback: {
       type: "OnOff",
@@ -65,10 +67,12 @@ export default {
       classes: true,
       states: true,
       responsive: true,
+      /* wwEditor:start */
       bindingValidation: {
         type: 'string',
         tooltip: 'A string that defines the position of the dropdown. Possible values are top, right, bottom, and left.',
       }
+      /* wwEditor:end */
     },
     alignment: {
       label: { en: "Align" },
@@ -113,10 +117,12 @@ export default {
       classes: true,
       states: true,
       responsive: true,
+      /* wwEditor:start */
       bindingValidation: {
         type: 'string',
         tooltip: 'A string that defines the alignment of the dropdown. Possible values are start, center, and end.',
       }
+      /* wwEditor:end */
     },
     openAtCursor: {
       type: "OnOff",
@@ -149,10 +155,12 @@ export default {
         noRange: true,
         useVar: true,
       },
+      /* wwEditor:start */
       bindingValidation: {
         type: 'string',
         tooltip: 'A string that defines size of offset in px or %',
       }
+      /* wwEditor:end */
     },
     offsetY: {
       type: "Length",
@@ -169,10 +177,12 @@ export default {
         noRange: true,
         useVar: true,
       },
+      /* wwEditor:start */
       bindingValidation: {
         type: 'string',
         tooltip: 'A string that defines size of offset in px or %',
       }
+      /* wwEditor:end */
     },
     keepInViewport: {
       type: "OnOff",
