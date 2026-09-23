@@ -264,8 +264,6 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
         // Update local data reactively
         dropdownLocalData.value.isOpen = newValue;
-        dropdownLocalData.value.state.isDisplayed =
-          newValue || (props.content?.forceDisplayEditor && isEditing.value);
       },
       { immediate: true }
     );
@@ -303,6 +301,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         isOpened.value || (props.content?.forceDisplayEditor && isEditing.value)
       );
     });
+    // Tracks isDisplayed itself, so toggling forceDisplayEditor updates it too.
+    watch(
+      isDisplayed,
+      (value) => {
+        dropdownLocalData.value.state.isDisplayed = !!value;
+      },
+      { immediate: true }
+    );
     const delayedIsOpen = ref(isDisplayed.value);
     const delayedIsClosed = ref(!isDisplayed.value);
     const timeoutId = ref(null);
