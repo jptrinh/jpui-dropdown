@@ -168,8 +168,20 @@ export default {
     // `isOpened` had already flipped back to false.
     const openingEvent = ref(null);
 
+    // Dragging a slider (or selecting text) from inside the panel and releasing
+    // outside it fires a click on a common ancestor, outside the panel: that is
+    // not a click outside. Remember where the press started.
+    let pressStartedInPanel = false;
+    function onWindowPointerDown(event) {
+      pressStartedInPanel = !!dropdownElementRef.value?.contains?.(event?.target);
+    }
+
     function onWindowClick(event) {
       if (event === openingEvent.value) return;
+      if (event?.type === "click" && pressStartedInPanel) {
+        pressStartedInPanel = false;
+        return;
+      }
       if (props.content?.disabled) return;
       if (
         props.content?.triggerType === "hover" &&
@@ -511,6 +523,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     function startPositioningDropdown() {
       synchronizeTriggerBox();
       wwLib.getFrontDocument().addEventListener("click", onWindowClick);
+      wwLib
+        .getFrontDocument()
+        .addEventListener("pointerdown", onWindowPointerDown, true);
       // A right-click is not a click: without this, right-clicking another
       // right-click dropdown's trigger opened it and left this one open too.
       wwLib.getFrontDocument().addEventListener("contextmenu", onWindowClick);
@@ -533,6 +548,9 @@ context.local.data?.['dropdown']?.['position']?.['placement']
 
     function stopPositioningDropdown() {
       wwLib.getFrontDocument().removeEventListener("click", onWindowClick);
+      wwLib
+        .getFrontDocument()
+        .removeEventListener("pointerdown", onWindowPointerDown, true);
       wwLib
         .getFrontDocument()
         .removeEventListener("contextmenu", onWindowClick);
@@ -753,6 +771,12 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       // A nested dropdown's trigger opens that child; closing here would unmount it.
       const nestedTrigger = event?.target?.closest?.("[data-trigger-uid]");
       if (nestedTrigger && event.currentTarget?.contains?.(nestedTrigger)) return;
+      // Form fields in the panel (slider, text field, select) are used in place:
+      // closing on their click would unmount them mid-use. Button-like inputs act.
+      const field = event?.target?.closest?.(
+        'input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [contenteditable]:not([contenteditable="false"])'
+      );
+      if (field && event.currentTarget?.contains?.(field)) return;
       this.isOpened = false;
     },
     handleHoverIn() {

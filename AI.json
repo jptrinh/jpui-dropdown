@@ -120,7 +120,7 @@
         },
         {
             "name": "closeOnContentClick",
-            "description": "When true, any click inside the panel closes the dropdown, after the clicked element's own click workflow has started — menu items need no close action. Clicks on a nested dropdown's trigger inside the panel are ignored so the child can open. Disabled while editing on the canvas so elements can be selected.",
+            "description": "When true, any click inside the panel closes the dropdown, after the clicked element's own click workflow has started — menu items need no close action. Clicks on a nested dropdown's trigger inside the panel are ignored so the child can open, and so are clicks on form fields (input except button / submit / reset, select, textarea, contenteditable) so they can be used in place. Disabled while editing on the canvas so elements can be selected.",
             "type": "boolean",
             "defaultValue": false,
             "bindable": true

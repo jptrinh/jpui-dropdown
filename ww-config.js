@@ -281,7 +281,7 @@ export default {
       /* wwEditor:start */
       bindingValidation: {
         type: "boolean",
-        tooltip: "A boolean that defines whether a click inside the dropdown closes it",
+        tooltip: "A boolean that defines whether a click inside the dropdown closes it (clicks on form fields such as a slider or a text field never close it)",
       },
       /* wwEditor:end */
     },
