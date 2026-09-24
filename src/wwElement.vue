@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative">
+  <div class="jpui-dropdown-root">
     <div
       ref="triggerElement"
       @click="handleClick"
@@ -831,6 +831,14 @@ context.local.data?.['dropdown']?.['position']?.['placement']
   },
 };
 </script>
+
+<style lang="scss">
+// Default only: zero specificity so the element's own position (e.g. absolute,
+// set in the editor) wins. An inline style here would override it.
+:where(.jpui-dropdown-root) {
+  position: relative;
+}
+</style>
 
 <style lang="scss" scoped>
 .dropdown {
