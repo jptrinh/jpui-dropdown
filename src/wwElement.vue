@@ -172,8 +172,30 @@ export default {
     // outside it fires a click on a common ancestor, outside the panel: that is
     // not a click outside. Remember where the press started.
     let pressStartedInPanel = false;
+    // A control in the panel can open its own popup elsewhere in the page - a
+    // select's option list is teleported to the app root - and names it with
+    // aria-controls / aria-owns. A press in that popup is a press in the panel.
+    // Checked on pointerdown: by the time the click reaches the document, picking
+    // an option may already have removed the list.
+    function isInOwnedPopup(target) {
+      const panel = dropdownElementRef.value;
+      const doc = target?.ownerDocument;
+      if (!panel?.querySelectorAll || !doc) return false;
+      for (const owner of panel.querySelectorAll("[aria-controls], [aria-owns]")) {
+        const ids = `${owner.getAttribute("aria-controls") || ""} ${owner.getAttribute("aria-owns") || ""}`
+          .split(/\s+/)
+          .filter(Boolean);
+        for (const id of ids) {
+          const popup = doc.getElementById(id);
+          if (popup && !panel.contains(popup) && popup.contains(target)) return true;
+        }
+      }
+      return false;
+    }
     function onWindowPointerDown(event) {
-      pressStartedInPanel = !!dropdownElementRef.value?.contains?.(event?.target);
+      const target = event?.target;
+      pressStartedInPanel =
+        !!dropdownElementRef.value?.contains?.(target) || isInOwnedPopup(target);
     }
 
     function onWindowClick(event) {
@@ -234,8 +256,22 @@ export default {
       triggerMutationObserver?.disconnect();
     });
 
+    // An Escape that closes the open popup of a control in the panel (a select's
+    // list) belongs to that control. Read in the capture phase: once the control
+    // has handled the key, its aria-expanded is already back to false.
+    let escapeClosesInnerPopup = false;
+    function onKeydownCapture(event) {
+      if (event?.key !== "Escape") return;
+      const expanded = event.target?.closest?.('[aria-expanded="true"]');
+      escapeClosesInnerPopup = !!(expanded && dropdownElementRef.value?.contains?.(expanded));
+    }
+
     function onKeydown(event) {
       if (event?.key !== "Escape") return;
+      if (escapeClosesInnerPopup) {
+        escapeClosesInnerPopup = false;
+        return;
+      }
       if (!(props.content?.closeOnEscape ?? true)) return;
       isOpened.value = false;
     }
@@ -530,6 +566,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       // right-click dropdown's trigger opened it and left this one open too.
       wwLib.getFrontDocument().addEventListener("contextmenu", onWindowClick);
       wwLib.getFrontDocument().addEventListener("keydown", onKeydown);
+      wwLib.getFrontDocument().addEventListener("keydown", onKeydownCapture, true);
       resizeObserver = createResizeObserver((entries) => {
         const entry = entries?.[0];
         if (!entry) return;
@@ -555,6 +592,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
         .getFrontDocument()
         .removeEventListener("contextmenu", onWindowClick);
       wwLib.getFrontDocument().removeEventListener("keydown", onKeydown);
+      wwLib.getFrontDocument().removeEventListener("keydown", onKeydownCapture, true);
       resizeObserver?.disconnect();
       scrollableParents.forEach((p) => {
         p.removeEventListener("scroll", synchronizeTriggerBox);
@@ -773,8 +811,10 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       if (nestedTrigger && event.currentTarget?.contains?.(nestedTrigger)) return;
       // Form fields in the panel (slider, text field, select) are used in place:
       // closing on their click would unmount them mid-use. Button-like inputs act.
+      // Custom widgets count too, by their role: a coded select is a div with
+      // role="combobox", not a <select>.
       const field = event?.target?.closest?.(
-        'input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [contenteditable]:not([contenteditable="false"])'
+        'input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea, [contenteditable]:not([contenteditable="false"]), [role="combobox"], [role="listbox"], [role="option"], [role="slider"], [role="spinbutton"], [role="textbox"], [role="searchbox"], [role="checkbox"], [role="switch"], [role="radio"]'
       );
       if (field && event.currentTarget?.contains?.(field)) return;
       this.isOpened = false;
