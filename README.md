@@ -113,7 +113,9 @@ context.local.data?.['dropdown']?.['state']?.['isAnimated']
   whatever `triggerType` is set to, and hover is disabled. This makes `hover` and `right-click`
   usable on touch devices. In `right-click` mode, turn off `smallScreenClickFallback` to keep
   plain clicks for the trigger's own workflow — the menu then opens only on `contextmenu`
-  (long-press on Android; iOS Safari fires none).
+  (long-press on Android; iOS Safari fires none). The option is read when the press starts
+  (`pointerdown`), before the trigger's click workflow runs: bind it to "this item is selected"
+  and the tap that selects an item only selects it, the next tap opens the menu.
 - **Native context menu.** The trigger calls `preventDefault()` on `contextmenu` in every trigger
   mode, so right-clicking the trigger never shows the browser menu — even when `triggerType` is
   `click` or `hover`.

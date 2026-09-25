@@ -2,6 +2,7 @@
   <div class="jpui-dropdown-root">
     <div
       ref="triggerElement"
+      @pointerdown="handleTriggerPointerDown"
       @click="handleClick"
       @mouseenter="handleHoverIn"
       @mouseleave="handleHoverOut"
@@ -167,6 +168,12 @@ export default {
     // `forceDisplayEditor && isEditing`, so the dropdown stayed visible after
     // `isOpened` had already flipped back to false.
     const openingEvent = ref(null);
+
+    // Whether the plain-click fallback applied when the press on the trigger
+    // started. The trigger's own click workflow runs before this component's
+    // click handler, and bindings re-evaluate on read: a fallback bound to "this
+    // card is selected" would already be true on the tap that selects the card.
+    const pressOpensOnClick = ref(null);
 
     // Dragging a slider (or selecting text) from inside the panel and releasing
     // outside it fires a click on a common ancestor, outside the panel: that is
@@ -660,6 +667,7 @@ context.local.data?.['dropdown']?.['position']?.['placement']
       id,
       localContext,
       openingEvent,
+      pressOpensOnClick,
     };
   },
   computed: {
@@ -789,11 +797,15 @@ context.local.data?.['dropdown']?.['position']?.['placement']
     },
   },
   methods: {
+    handleTriggerPointerDown() {
+      this.pressOpensOnClick = this.opensOnSmallScreenClick;
+    },
     handleClick(event) {
-      if (
-        this.content?.triggerType === "click" ||
-        this.opensOnSmallScreenClick
-      ) {
+      // Judge the fallback as it was when the press started (see
+      // pressOpensOnClick); a click without a press (keyboard) reads it now.
+      const opensOnClick = this.pressOpensOnClick ?? this.opensOnSmallScreenClick;
+      this.pressOpensOnClick = null;
+      if (this.content?.triggerType === "click" || opensOnClick) {
         if (!this.content?.disabled) {
           this.openingEvent = event;
           if (!this.isOpened) this.setCursorAnchor(event);
