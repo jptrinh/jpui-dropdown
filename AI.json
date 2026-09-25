@@ -41,7 +41,7 @@
         },
         {
             "name": "smallScreenClickFallback",
-            "description": "Only shown when `triggerType` is 'right-click'. When true (default), a plain click also opens the dropdown on any non-default breakpoint, since touch screens have no right-click. Set to false when the trigger's own click does something else (e.g. selecting an item); the dropdown then only opens on `contextmenu`, which Android fires on long-press but iOS Safari does not.",
+            "description": "Only shown when `triggerType` is 'right-click'. When true (default), a plain click also opens the dropdown on any non-default breakpoint, since touch screens have no right-click. Set to false when the trigger's own click does something else (e.g. selecting an item); the dropdown then only opens on `contextmenu`, which Android fires on long-press but iOS Safari does not. The value is read when the press on the trigger starts, before the trigger's click workflow runs: bound to \"this item is selected\", the tap that selects an item does not open the dropdown, the next tap does.",
             "type": "boolean",
             "defaultValue": true,
             "bindable": true

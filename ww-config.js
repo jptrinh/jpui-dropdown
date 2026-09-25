@@ -46,7 +46,7 @@ export default {
         type: "boolean",
         tooltip: "A boolean that defines whether a plain click also opens a right-click dropdown on non-desktop breakpoints",
       },
-      propertyHelp: "Touch screens have no right-click, so by default a plain click opens the dropdown on tablet and mobile breakpoints. Turn off when the trigger's own click does something else, such as selecting an item.",
+      propertyHelp: "Touch screens have no right-click, so by default a plain click opens the dropdown on tablet and mobile breakpoints. Turn off when the trigger's own click does something else, such as selecting an item. Bound, it is read when the press starts, before the trigger's click workflow runs: bind it to \"this item is selected\" and the first tap only selects, the next one opens.",
       /* wwEditor:end */
     },
     position: {
